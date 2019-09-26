@@ -113,6 +113,8 @@ class DeclListNode;
 class DeclNode;
 class TypeNode;
 class IdNode;
+class BinaryExpNode;
+class ExpNode;
 
 class ASTNode{
 public:
@@ -145,6 +147,7 @@ class DeclNode : public ASTNode{
 public:
 	DeclNode(size_t line, size_t col) : ASTNode(line, col){}
 };
+
 /*ExpNode Sub-Section*/
 class ExpNode : public ASTNode{
 public:
@@ -164,20 +167,24 @@ private:
 class IdNode : public ExpNode{
 public:
 	IdNode(IDToken * token) : ExpNode(token->_line, token->_column){
-		myStrVal = token->value();
+		strValue = token->value();
 	}
 	void unparse(std::ostream& out, int indent);
 private:
-	std::string myStrVal;
+	std::string strValue;
 };
 
 class BinaryExpNode : public ExpNode{
 public:
-	BinaryExpNode(ExpNode* lExp , ExpNode* rExp) : ExpNode(0, 0){}
+	BinaryExpNode(ExpNode* lExp , ExpNode* rExp) : ExpNode(lExp->getLine(), lExp->getCol()){}
 	void unparse(std::ostream& out, int indent);
-}
+};
 
-class PlusNode()
+class PlusNode : public BinaryExpNode{
+public:
+	PlusNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp->getLine(), rExp->getCol()){}
+	void unparse(std::ostream& out, int indent);
+};
 
 class DeclListNode : public ASTNode{
 public:
@@ -187,13 +194,6 @@ public:
 	void unparse(std::ostream& out, int indent);
 private:
 	std::list<DeclNode *> * myDecls;
-};
-
-class TypeNode : public ASTNode{
-public:
-	TypeNode(size_t lineIn, size_t colIn) : ASTNode(lineIn, colIn){
-	}
-	virtual void unparse(std::ostream& out, int indent) = 0;
 };
 
 class VarDeclNode : public DeclNode{
@@ -207,12 +207,27 @@ private:
 	TypeNode * myType;
 	IdNode * myId;
 };
-
-
+/*TypeNode Subclasses-------------------------------------------------------------------------*/
+class TypeNode : public ASTNode{
+public:
+	TypeNode(size_t lineIn, size_t colIn) : ASTNode(lineIn, colIn){
+	}
+	virtual void unparse(std::ostream& out, int indent) = 0;
+};
 
 class IntNode : public TypeNode{
 public:
-	IntNode(size_t lineIn, size_t colIn): TypeNode(lineIn, colIn){ }
+	IntNode(IDToken* token) : TypeNode(token->_line, token->_column){
+		strValue = token->value();
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	std::string strValue;
+};
+
+class BoolNode : public TypeNode{
+public:
+	BoolNode(IDToken* token) : TypeNode(token->_line, token->_column){}
 	void unparse(std::ostream& out, int indent);
 };
 

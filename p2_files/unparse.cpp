@@ -25,11 +25,13 @@ void VarDeclNode::unparse(std::ostream& out, int indent){
 }
 
 void IdNode::unparse(std::ostream& out, int indent){
-	out << this->myStrVal;
+	doIndent(out, indent);
+	out << this->strValue;
 }
 
 void IntNode::unparse(std::ostream& out, int indent){
-	out << "int";
+	doIndent(out, indent);
+	out << this->strValue;
 }
 
 } // End namespace lake
