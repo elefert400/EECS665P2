@@ -5,12 +5,12 @@
 #include <list>
 #include "tokens.hpp"
 
-//Here is a suggestion for some of the different kinds of AST nodes 
-// and what kinds of children you might want to give them. 
-// All of these kinds of AST nodes are subclasses of ASTNode. 
+//Here is a suggestion for some of the different kinds of AST nodes
+// and what kinds of children you might want to give them.
+// All of these kinds of AST nodes are subclasses of ASTNode.
 // Please note that you do NOT have to use this AST structure and
 // you should feel free to include additional classes or not use
-// the ones provided here. All that matters for P2 is that you 
+// the ones provided here. All that matters for P2 is that you
 // unparse the tree as the oracle does.
 
 //
@@ -107,7 +107,7 @@
 namespace lake{
 
 /* You may find it useful to forward declare AST subclasses
-   here so that you don't have to worry about the order 
+   here so that you don't have to worry about the order
    in which you declare your subclasses below */
 class DeclListNode;
 class DeclNode;
@@ -145,11 +145,39 @@ class DeclNode : public ASTNode{
 public:
 	DeclNode(size_t line, size_t col) : ASTNode(line, col){}
 };
-
+/*ExpNode Sub-Section*/
 class ExpNode : public ASTNode{
 public:
 	ExpNode(size_t line, size_t col) : ASTNode(line, col){}
 };
+
+class IntLitNode: public ExpNode{
+public:
+	IntLitNode(IntLitToken* token) : ExpNode(token->_line, token->_column){
+		value = token->value();
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	int value;
+};
+
+class IdNode : public ExpNode{
+public:
+	IdNode(IDToken * token) : ExpNode(token->_line, token->_column){
+		myStrVal = token->value();
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	std::string myStrVal;
+};
+
+class BinaryExpNode : public ExpNode{
+public:
+	BinaryExpNode(ExpNode* lExp , ExpNode* rExp) : ExpNode(0, 0){}
+	void unparse(std::ostream& out, int indent);
+}
+
+class PlusNode()
 
 class DeclListNode : public ASTNode{
 public:
@@ -167,18 +195,6 @@ public:
 	}
 	virtual void unparse(std::ostream& out, int indent) = 0;
 };
-
-
-class IdNode : public ExpNode{
-public:
-	IdNode(IDToken * token) : ExpNode(token->_line, token->_column){
-		myStrVal = token->value();
-	}
-	void unparse(std::ostream& out, int indent);
-private:
-	std::string myStrVal;
-};
-
 
 class VarDeclNode : public DeclNode{
 public:

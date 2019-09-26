@@ -126,18 +126,19 @@
 /* NOTE: Make sure to add precedence and associativity
  * declarations!
 */
+%left DOT
 %right ASSIGN
 $left OR
 %left AND
-%left CROSS DASH
-%left STAR SLASH
-%left NOT
 %nonassoc LESS
 %nonassoc GREATER
 %nonassoc LESSEQ
 %nonassoc GREATEREQ
 %nonassoc EQUALS
 %nonassoc NOTEQUALS
+%left CROSS DASH
+%left STAR SLASH
+%left NOT
 %%
 
 /* TODO: fill out the rest of the rules */
