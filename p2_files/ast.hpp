@@ -148,10 +148,11 @@ public:
 	DeclNode(size_t line, size_t col) : ASTNode(line, col){}
 };
 
-/*ExpNode Sub-Section*/
+/*ExpNode Sub-Section------------------------------------------------------------------------------*/
 class ExpNode : public ASTNode{
 public:
 	ExpNode(size_t line, size_t col) : ASTNode(line, col){}
+	void unparse(std::ostream& out, int indent);
 };
 
 class IntLitNode: public ExpNode{
@@ -164,6 +165,28 @@ private:
 	int value;
 };
 
+class StrLitNode : public ExpNode{
+public:
+	StrLitNode(StringLitToken* token) : ExpNode(token->_line, token->_column){
+		value = token->value();
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	std::string value;
+};
+
+class TrueNode : public ExpNode{
+public:
+	TrueNode(NoArgToken* token) : ExpNode(token->_line, token->_column){ }
+	void unparse(std::ostream& out, int indent);
+};
+
+class FalseNode : public ExpNode{
+public:
+	FalseNode(NoArgToken* token) : ExpNode(token->_line, token->_column){ }
+	void unparse(std::ostream& out, int indent);
+};
+
 class IdNode : public ExpNode{
 public:
 	IdNode(IDToken * token) : ExpNode(token->_line, token->_column){
@@ -174,18 +197,90 @@ private:
 	std::string strValue;
 };
 
+class DerefNode : public ExpNode{
+public:
+	DerefNode(ExpNode* expIn, IdNode* idIn) : ExpNode(expIn->getLine(), expIn->getCol()){
+		myExp = expIn;
+		myId = idIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myExp;
+	IdNode* myId;
+};
+
+class AssignNode : public ExpNode{
+public:
+	AssignNode(ExpNode* lExp, ExpNode* rExp) : ExpNode(lExp->getLine(), lExp->getCol()){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
+};
+
+class CallExpNode : public ExpNode{
+public:
+	CallExpNode(IdNode* idIn, ExpListNode* expListIn) : ExpNode(idIn->getLine(), idIn->getCol()){
+		myId = idIn;
+		myExpList = expListIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	IdNode* myId;
+	ExpListNode* myExpList;
+};
+
+class UnaryExpNode : public ExpNode{
+public:
+	UnaryExpNode(ExpNode* expIn) : ExpNode(expIn->getLine(), expIn->getCol()){
+		myExp = expIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myExp;
+};
+
+class UnaryMinusNode : public UnaryExpNode{
+public:
+	UnaryMinusNode() : UnaryExpNode(){}
+	void unparse(std::ostream& out, int indent);
+};
+
+class NotNode : public UnaryExpNode{
+public:
+	NotNode() : UnaryExpNode(){}
+	void unparse(std::ostream& out, int indent);
+};
+
 class BinaryExpNode : public ExpNode{
 public:
-	BinaryExpNode(ExpNode* lExp , ExpNode* rExp) : ExpNode(lExp->getLine(), lExp->getCol()){}
+	BinaryExpNode(ExpNode* lExp , ExpNode* rExp) : ExpNode(lExp->getLine(), lExp->getCol()){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
 	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
+
 };
 
 class PlusNode : public BinaryExpNode{
 public:
-	PlusNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp->getLine(), rExp->getCol()){}
+	PlusNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
 	void unparse(std::ostream& out, int indent);
 };
 
+class MinusNode : public BinaryExpNode{
+public:
+	MinusNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	void unparse(std::ostream& out, int indent);
+};
+
+/*LinkedList Nodes-----------------------------------------------------------------------------------*/
 class DeclListNode : public ASTNode{
 public:
 	DeclListNode(std::list<DeclNode *> * declsIn) : ASTNode(0, 0){
@@ -196,6 +291,36 @@ private:
 	std::list<DeclNode *> * myDecls;
 };
 
+class FormalsListNode : public ASTNode{
+public:
+	FormalsListNode(std::list<FormalDeclNode *> * formalsIn) : ASTNode(0, 0){
+		myFormals = formalsIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	std::list<FormalDeclNode *> * myFormals;
+};
+
+class StmtListNode : public ASTNode{
+public:
+	StmtListNode(std::list<StmtNode *> * stmtIn) : ASTNode(0, 0){
+		myStmt = stmtIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	std::list<StmtNode *> * myStmt;
+};
+
+class ExpListNode : public ASTNode{
+public:
+	ExpListNode(std::list<ExpNode *> * expIn) : ASTNode(0, 0){
+		myExp = expIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	std::list<ExpNode *> * myExp;
+};
+/*DeclNode Subclasses--------------------------------------------------------------------------*/
 class VarDeclNode : public DeclNode{
 public:
 	VarDeclNode(TypeNode * type, IdNode * id) : DeclNode(type->getLine(), type->getCol()){
@@ -207,28 +332,158 @@ private:
 	TypeNode * myType;
 	IdNode * myId;
 };
-/*TypeNode Subclasses-------------------------------------------------------------------------*/
+/*TypeNode Subclasses---------------------------------------------------------------------------*/
 class TypeNode : public ASTNode{
 public:
-	TypeNode(size_t lineIn, size_t colIn) : ASTNode(lineIn, colIn){
+	TypeNode(size_t line, size_t col) : ASTNode(line, col){
 	}
 	virtual void unparse(std::ostream& out, int indent) = 0;
+	int derefDepth; 
 };
 
 class IntNode : public TypeNode{
 public:
-	IntNode(IDToken* token) : TypeNode(token->_line, token->_column){
-		strValue = token->value();
-	}
+	IntNode(NoArgToken* token) : TypeNode(token->_line, token->_column){ }
 	void unparse(std::ostream& out, int indent);
-private:
-	std::string strValue;
 };
 
 class BoolNode : public TypeNode{
 public:
-	BoolNode(IDToken* token) : TypeNode(token->_line, token->_column){}
+	BoolNode(NoArgToken* token) : TypeNode(token->_line, token->_column){ }
 	void unparse(std::ostream& out, int indent);
+};
+
+class VoidNode : public TypeNode{
+public:
+	VoidNode(NoArgToken* token) : TypeNode(token->_line, token->_column){ }
+	void unparse(std::ostream& out, int indent);
+};
+
+/*StmtNode Subclasses----------------------------------------------------------------------------*/
+class StmtNode : public ASTNode{
+public:
+	StmtNode(size_t line, size_t col) : ASTNode(line, col){ };
+	void unparse(std::ostream& out, int indent);
+};
+
+class AssignStmtNode : public StmtNode{
+public:
+	AssignStmtNode(AssignNode* assignIn) : StmtNode(assignIn->getLine(), assignIn->getCol()){
+		myAssign = assignIn;	
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	AssignNode* myAssign;
+};
+
+class PostIncStmtNode : public StmtNode{
+public:
+	PostIncStmtNode(IdNode* idIn) : StmtNode(idIn->getLine(), idIn->getCol()){
+		myId = idIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	IdNode* myId;
+};
+
+class PostDecStmtNode : public StmtNode{
+public:
+	PostDecStmtNode(IdNode* idIn) : StmtNode(idIn->getLine(), idIn->getCol()){
+		myId = idIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	IdNode* myId;
+};
+
+class ReadStmtNode : public StmtNode{
+public:
+	ReadStmtNode(IdNode* idIn) : StmtNode(idIn->getLine(), idIn->getCol()){
+		myId = idIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	IdNode* myId;
+};
+
+class WriteStmtNode : public StmtNode{
+public:
+	WriteStmtNode(ExpNode* expIn) : StmtNode(expIn->getLine(), expIn->getCol()){
+		myExp = expIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myExp;
+};
+
+class IfStmtNode : public StmtNode{
+public:
+	IfStmtNode(ExpNode* expIn, DeclListNode* declListIn, StmtListNode* stmtListIn) :
+		StmtNode(expIn->getLine(), expIn->getCol()){
+			myExp = expIn;
+			myDeclList = declListIn;
+			myStmtList = stmtListIn;	
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myExp;
+	DeclListNode* myDeclList;
+	StmtListNode* myStmtList;
+};
+
+class IfElseStmtNode : public StmtNode{
+public:
+	IfElseStmtNode(ExpNode* expIn, DeclListNode* declListIn_if, StmtListNode* stmtListIn_if, 
+		DeclListNode* declListIn_else, StmtListNode* stmtListIn_else) :
+		StmtNode(expIn->getLine(), expIn->getCol()){
+			myExp = expIn;
+			myDeclList_if = declListIn_if;
+			myStmtList_if = stmtListIn_if;
+			myDeclList_else = declListIn_else;
+			myStmtList_else = stmtListIn_else;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myExp;
+	DeclListNode* myDeclList_if;
+	StmtListNode* myStmtList_if;
+	DeclListNode* myDeclList_else;
+	StmtListNode* myStmtList_else;
+};
+
+class WhileStmtNode : public StmtNode{
+public:
+	WhileStmtNode(ExpNode* expIn, DeclListNode* declListIn, StmtListNode* stmtListIn) : StmtNode(expIn->getLine(), expIn->getCol()){
+			myExp = expIn;
+			myDeclList = declListIn;
+			myStmtList = stmtListIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myExp;
+	DeclListNode* myDeclList;
+	StmtListNode* myStmtList;
+};
+
+class CallStmtNode : public StmtNode{
+public:
+	CallStmtNode(CallExpNode* callExpIn) : StmtNode(callExpIn->getLine(), callExpIn->getCol()){
+		myCallExp = callExpIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	CallExpNode* myCallExp;
+};
+
+class ReturnStmtNode : public StmtNode{
+public:
+	ReturnStmtNode(Token* returnToken, ExpNode* expIn) : 
+		StmtNode(returnToken->_line, returnToken->_column){
+		myExp = expIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myExp;
 };
 
 } //End namespace lake
