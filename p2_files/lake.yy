@@ -43,6 +43,7 @@
 
 /*%define api.value.type variant*/
 %union {
+size_t counterTrans;
 	lake::Token * tokenValue;
 	lake::IDToken * idTokenValue;
 	lake::ASTNode * astNode;
@@ -176,10 +177,12 @@ formals : LPAREN RPAREN {
   //needs to be filled in
   }
 formalsList : formalDecl {
-  //needs to be filled in
+  $$ = new std::list<FormalDeclNode*>;
+  $$->push_back($1);
 }
   | formalDecl COMMA formalsList {
-  //needs to be filled in
+  $3->push_front($1);
+  $$ = $3;
   }
 formalDecl : type id {
   //needs to be filled in
@@ -188,88 +191,86 @@ fnBody : LCURLY varDeclList stmtList RCURLY {
   //needs to be filled in
 }
 stmtList : stmtList stmt {
-  //needs to be filled in
+  $$ = $1;
+  $1->push_back($2);
 }
   | /*epsilon*/ {
-  //needs to be filled in
+  $$ = new std::list<StmtNode*> ();
   }
-stmt : assignExp SEMICOLON {
-  //needs to be filled in
-}
+stmt : assignExp SEMICOLON{
+  $$ = new AssignStmtNode($1);
+  }
   | loc PLUSPLUS SEMICOLON {
-  //needs to be filled in
+  $$ = new PostIncStmtNode($1);
   }
   | loc MINUSMINUS SEMICOLON {
-  //needs to be filled in
+  $$ = new PostDecStmtNode($1);
   }
   | READ loc SEMICOLON {
-  //needs to be filled in
+  $$ = new ReadStmtNode($2);
   }
   | WRITE exp SEMICOLON {
-  //needs to be filled in
+  $$ = new WriteStmtNode($2);
   }
   | IF LPAREN exp RPAREN LCURLY varDeclList stmtList RCURLY {
-  //needs to be filled in
+  $$ = new IfStmtNode($3, $6, $7);
   }
   | IF LPAREN exp RPAREN LCURLY varDeclList stmtList RCURLY ELSE LCURLY varDeclList stmtList RCURLY {
-  //needs to be filled in
+  $$ = new IfElseStmtNode($3, $6, $7, $11, $12);
   }
   | WHILE LPAREN exp RPAREN LCURLY varDeclList stmtList RCURLY {
-  //needs to be filled in
+  $$ = new WhileStmtNode($3, $6, $7);
   }
   | RETURN exp SEMICOLON {
-  //needs to be filled in
+  $$ = new ReturnStmtNode($1, $2);
   }
   | RETURN SEMICOLON {
-  //needs to be filled in
+  $$ = new ReturnStmtNode($1, nullptr);
   }
   | fncall SEMICOLON {
-  //needs to be filled in
+  $$ = new CallStmtNode($1);
   }
 assignExp : loc ASSIGN exp {
-  //needs to be filled in
+  $$ = new AssignNode($1, $3);
   }
-exp : assignExp {
-  //needs to be filled in
-  }
-  | exp PLUS exp {
-  //needs to be filled in
+exp :  exp PLUS exp {
+  $$ = new PlusNode($1, $3);
   }
   | exp MINUS exp {
-  //needs to be filled in
+  $$ = new MinusNode($1, $3);
   }
   | exp TIMES exp {
-  //needs to be filled in
+  $$ = new TimesNode($1, $3);
   }
   | exp DIVIDE exp {
-  //needs to be filled in
+  $$ = new DivideNode($1, $3);
   }
   | NOT exp {
-  //needs to be filled in
+  $$ = new NotNode($2);
   }
   | exp AND exp {
-  //needs to be filled in
+  $$ = new AndNode($1, $3);
   }
   | exp OR exp {
-  //needs to be filled in
+  $$ = new OrNode($1, $3);
   }
   | exp EQUALS exp {
-  //needs to be filled in
+  $$ = new EqualsNode($1, $3);
   }
   | exp NOTEQUALS exp {
-  //needs to be filled in
+  $$ = new NotEqualsNode($1, $3);
   }
   | exp LESS exp {
-  //needs to be filled in
+  $$ = new LessNode($1, $3);
   }
   | exp GREATER exp {
-  //needs to be filled in
+  $$ = new GreaterNode($1, $3);
   }
   | exp LESSEQ exp {
-  //needs to be filled in
+  $$ = new LessEqNode($1, $3);
   }
   | exp GREATEREQ exp {
-  //needs to be filled in
+  $$ = new GreaterEqNode($1, $3);
   }
   | MINUS term {
   //needs to be filled in
@@ -278,19 +279,19 @@ exp : assignExp {
   //needs to be filled in
   }
 term : loc {
-//needs to be filled in
-}
-  | INTLITERAL {
   //needs to be filled in
+  }
+  | INTLITERAL {
+  $$ = new IntLitNode($1);
   }
   | STRINGLITERAL {
-  //needs to be filled in
+  $$ = new StrLitNode($1);
   }
   | TRUE {
-  //needs to be filled in
+  $$ = new TrueNode($1);
   }
   | FALSE {
-  //needs to be filled in
+  $$ = new FalseNode($1);
   }
   | LPAREN exp RPAREN {
   //needs to be filled in
@@ -312,24 +313,27 @@ actualList : exp {
   | actualList COMMA exp {
   //needs to be filled in
   }
-type : INT { $$ = new IntNode($1->_line, $1->_column); }
+type : primtype indirect {
+  $$ = $1;
+  $$->derefDepth = $2;
+  }
 primtype : INT {
-  //needs to be filled in
+  $$ = new IntNode($1);
   }
   | BOOL {
-  //needs to be filled in
+  $$ = new BoolNode($1);
   }
   | VOID {
-  //needs to be filled in
+  $$ = new VoidNode($1);
   }
 indirect : indirect DEREF {
-  //needs to be filled in
+  $$ = $1 + 1;
   }
   | /*epsilon*/ {
-  //needs to be filled in
+  $$ = 0;
   }
 loc : id {
-  //needs to be filled in
+  $$ = new IdNode($1);
   }
   | DEREF loc {
   //needs to be filled in
