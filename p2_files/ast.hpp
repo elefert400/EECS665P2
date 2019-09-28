@@ -146,9 +146,15 @@ private:
 class DeclNode : public ASTNode{
 public:
 	DeclNode(size_t line, size_t col) : ASTNode(line, col){}
+	void unparse(std::ostream& out, int indent);
 };
 
-/*ExpNode Sub-Section------------------------------------------------------------------------------*/
+
+
+
+
+
+/*ExpNode Sub-Section---------------------------------------------------------------------------------------*/
 class ExpNode : public ASTNode{
 public:
 	ExpNode(size_t line, size_t col) : ASTNode(line, col){}
@@ -204,6 +210,8 @@ public:
 		myId = idIn;
 	}
 	void unparse(std::ostream& out, int indent);
+	void incr_Deref_Count();
+
 private:
 	ExpNode* myExp;
 	IdNode* myId;
@@ -245,13 +253,13 @@ private:
 
 class UnaryMinusNode : public UnaryExpNode{
 public:
-	UnaryMinusNode() : UnaryExpNode(){}
+	UnaryMinusNode(ExpNode* expIn) : UnaryExpNode(expIn){}
 	void unparse(std::ostream& out, int indent);
 };
 
 class NotNode : public UnaryExpNode{
 public:
-	NotNode() : UnaryExpNode(){}
+	NotNode(ExpNode* expIn) : UnaryExpNode(expIn){}
 	void unparse(std::ostream& out, int indent);
 };
 
@@ -265,7 +273,6 @@ public:
 private:
 	ExpNode* myLeftExp;
 	ExpNode* myRightExp;
-
 };
 
 class PlusNode : public BinaryExpNode{
@@ -280,7 +287,71 @@ public:
 	void unparse(std::ostream& out, int indent);
 };
 
-/*LinkedList Nodes-----------------------------------------------------------------------------------*/
+class TimesNode : public BinaryExpNode{
+public:
+	TimesNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	void unparse(std::ostream& out, int indent);
+};
+
+class DivideNode : public BinaryExpNode{
+public:
+	DivideNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	void unparse(std::ostream& out, int indent);
+};
+
+class AndNode : public BinaryExpNode{
+public:
+	AndNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	void unparse(std::ostream& out, int indent);
+};
+
+class OrNode : public BinaryExpNode{
+public:
+	OrNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	void unparse(std::ostream& out, int indent);
+};
+
+class EqualsNode : public BinaryExpNode{
+public:
+	EqualsNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	void unparse(std::ostream& out, int indent);
+};
+
+class NotEqualsNode : public BinaryExpNode{
+public:
+	NotEqualsNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	void unparse(std::ostream& out, int indent);
+};
+
+class LessNode : public BinaryExpNode{
+public:
+	LessNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	void unparse(std::ostream& out, int indent);
+};
+
+class GreaterNode : public BinaryExpNode{
+public:
+	GreaterNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	void unparse(std::ostream& out, int indent);
+};
+
+class LessEqNode : public BinaryExpNode{
+public:
+	LessEqNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	void unparse(std::ostream& out, int indent);
+};
+
+class GreaterEqNode : public BinaryExpNode{
+public:
+	GreaterEqNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	void unparse(std::ostream& out, int indent);
+};
+
+
+
+
+
+/*LinkedList Nodes--------------------------------------------------------------------------------------------*/
 class DeclListNode : public ASTNode{
 public:
 	DeclListNode(std::list<DeclNode *> * declsIn) : ASTNode(0, 0){
@@ -299,6 +370,18 @@ public:
 	void unparse(std::ostream& out, int indent);
 private:
 	std::list<FormalDeclNode *> * myFormals;
+};
+
+class FnBodyNode : public ASTNode{
+public:
+	FnBodyNode(DeclListNode* declListIn, StmtListNode* stmtListIn) : ASTNode(0, 0){
+		myDeclList = declListIn;
+		myStmtList = stmtListIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	DeclListNode* myDeclList;
+	StmtListNode* myStmtList;
 };
 
 class StmtListNode : public ASTNode{
@@ -320,7 +403,14 @@ public:
 private:
 	std::list<ExpNode *> * myExp;
 };
-/*DeclNode Subclasses--------------------------------------------------------------------------*/
+
+
+
+
+
+
+
+/*DeclNode Subclasses--------------------------------------------------------------------------------------------*/
 class VarDeclNode : public DeclNode{
 public:
 	VarDeclNode(TypeNode * type, IdNode * id) : DeclNode(type->getLine(), type->getCol()){
@@ -332,7 +422,42 @@ private:
 	TypeNode * myType;
 	IdNode * myId;
 };
-/*TypeNode Subclasses---------------------------------------------------------------------------*/
+
+class FnDeclNode : public DeclNode{
+public:
+	FnDeclNode(TypeNode* type, IdNode* id, FormalsListNode* formals, FnBodyNode* body) : DeclNode(type->getLine(), type->getCol()){
+		myType = type;
+		myId = id;
+		myFormals = formals;
+		myBody = body;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	TypeNode * myType;
+	IdNode * myId;
+	FormalsListNode* myFormals;
+	FnBodyNode* myBody;
+};
+
+class FormalDeclNode : public DeclNode{
+public:
+	FormalDeclNode(TypeNode * type, IdNode * id) : DeclNode(type->getLine(), type->getCol()){
+		myType = type;
+		myId = id;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	TypeNode * myType;
+	IdNode * myId;
+};
+
+
+
+
+
+
+
+/*TypeNode Subclasses---------------------------------------------------------------------------------------------*/
 class TypeNode : public ASTNode{
 public:
 	TypeNode(size_t line, size_t col) : ASTNode(line, col){
@@ -359,7 +484,15 @@ public:
 	void unparse(std::ostream& out, int indent);
 };
 
-/*StmtNode Subclasses----------------------------------------------------------------------------*/
+
+
+
+
+
+
+
+
+/*StmtNode Subclasses-----------------------------------------------------------------------------------------------*/
 class StmtNode : public ASTNode{
 public:
 	StmtNode(size_t line, size_t col) : ASTNode(line, col){ };
