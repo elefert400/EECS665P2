@@ -43,9 +43,13 @@
 
 /*%define api.value.type variant*/
 %union {
-size_t counterTrans;
+  size_t counterTrans;
+
 	lake::Token * tokenValue;
 	lake::IDToken * idTokenValue;
+  lake::IntLitToken * intTokenValue;
+	lake::StringLitToken * strTokenValue;
+
 	lake::ASTNode * astNode;
 	lake::ProgramNode * programNode;
 	std::list<DeclNode *> * declList;
@@ -53,6 +57,17 @@ size_t counterTrans;
 	lake::VarDeclNode * varDeclNode;
 	lake::TypeNode * typeNode;
 	lake::IdNode * idNode;
+  lake::FnDeclNode * fnDecl;
+  lake::FormalDeclNode * formalDecl;
+	std::list<FormalDeclNode *> * formalsList;
+	lake::FormalsListNode * formalsType;
+	lake::FnBodyNode * fnBody;
+  std::list<StmtNode *> * stmtList;
+	std::list<ExpNode *> * expList;
+  lake::StmtNode * stmtNode;
+  lake::ExpNode * exp;
+  lake::AssignNode * assignNode;
+  lake::CallExpNode * callNode;
 }
 
 %define parse.assert
@@ -140,6 +155,7 @@ $left OR
 %left CROSS DASH
 %left STAR SLASH
 %left NOT
+%precedence DEREF
 %%
 
 /* TODO: fill out the rest of the rules */
@@ -159,22 +175,22 @@ declList : declList decl {
 	;
 
 decl : varDecl {
-		//Make sure to fill out this rule
+		$$ = $1;
 		}
     | fnDecl {
-    //needs to be filled in
+    $$ = $1;
     }
 varDecl : type id SEMICOLON {
 		$$ = new VarDeclNode($1, $2);
 			    }
 fnDecl : type id formals fnBody {
-  //needs to be filled in
+  $$ = new FnDeclNode($1, $2, $3, $4);
 }
 formals : LPAREN RPAREN {
-  //needs to be filled in
+  $$ = new FormalsListNode(new std::list<FormalDeclNode*> ();)
 }
   | LPAREN formalsList RPAREN {
-  //needs to be filled in
+  $$ = new FormalsListNode($2);
   }
 formalsList : formalDecl {
   $$ = new std::list<FormalDeclNode*>;
@@ -185,10 +201,10 @@ formalsList : formalDecl {
   $$ = $3;
   }
 formalDecl : type id {
-  //needs to be filled in
+  $$ = new FormalDeclNode($1, $2);
 }
 fnBody : LCURLY varDeclList stmtList RCURLY {
-  //needs to be filled in
+  $$ = new FnBodyNode($2, $3);
 }
 stmtList : stmtList stmt {
   $$ = $1;
@@ -273,13 +289,13 @@ exp :  exp PLUS exp {
   $$ = new GreaterEqNode($1, $3);
   }
   | MINUS term {
-  //needs to be filled in
+  $$ = new UnaryMinusNode($2);
   }
   | term {
-  //needs to be filled in
+  $$ = $1;
   }
 term : loc {
-  //needs to be filled in
+  $$ = $1;
   }
   | INTLITERAL {
   $$ = new IntLitNode($1);
@@ -294,24 +310,26 @@ term : loc {
   $$ = new FalseNode($1);
   }
   | LPAREN exp RPAREN {
-  //needs to be filled in
+  $$ = $2;
   }
   | fncall {
-  //needs to be filled in
+  $$ = $2;
   }
 fncall : id LPAREN RPAREN {
   //no args fn call
-  //needs to be filled in
+  $$ = new CallExpNode($1, new std::list<ExpNode*>());
   }
   | id LPAREN actualList RPAREN {
   //with args fn call
-  //needs to be filled in
+  $$ = new CallExpNode($1, new std::list<ExpNode*>($3));
   }
 actualList : exp {
-  //needs to be filled in
+  $$ = new std::list<ExpNode*> ();
+  $$->push_back($1);
   }
   | actualList COMMA exp {
-  //needs to be filled in
+  $$ = $1;
+  $$->push_back($3);
   }
 type : primtype indirect {
   $$ = $1;
@@ -336,7 +354,8 @@ loc : id {
   $$ = new IdNode($1);
   }
   | DEREF loc {
-  //needs to be filled in
+  $2->Inc();
+  $$ = $2;
   }
 id : ID { $$ = new IdNode($1); }
 %%
