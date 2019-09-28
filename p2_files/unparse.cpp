@@ -107,19 +107,23 @@ void ReturnStmtNode::unparse(std::ostream& out, int indent){
 }
 
 void IntLitNode::unparse(std::ostream& out, int indent){
-
+	doIndent(out, indent);
+	cout << value;
 }
 
 void StrLitNode::unparse(std::ostream& out, int indent){
-
+doIndent(out, indent);
+cout << value;
 }
 
 void TrueNode::unparse(std::ostream& out, int indent){
-
+	doIndent(out, indent);
+	cout << "True";
 }
 
 void FalseNode::unparse(std::ostream& out, int indent){
-
+	doIndent(out, indent);
+	cout << "False";
 }
 
 void IdNode::unparse(std::ostream& out, int indent){
