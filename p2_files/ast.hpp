@@ -109,12 +109,57 @@ namespace lake{
 /* You may find it useful to forward declare AST subclasses
    here so that you don't have to worry about the order
    in which you declare your subclasses below */
+
+class ProgramNode;
 class DeclListNode;
 class DeclNode;
+class VarDeclNode;
+class FnDeclNode;
+class FormalDeclNode;
+class FormalsListNode;
+class FnBodyNode;
+class StmtListNode;
+class ExpListNode;
 class TypeNode;
-class IdNode;
-class BinaryExpNode;
+class IntNode;
+class BoolNode;
+class VoidNode;
+class StmtNode;
+class AssignStmtNode;
+class PostIncStmtNode;
+class PostDecStmtNode;
+class ReadStmtNode;
+class WriteStmtNode;
+class IfStmtNode;
+class IfElseStmtNode;
+class WhileStmtNode;
+class CallStmtNode;
+class ReturnStmtNode;
 class ExpNode;
+class IntLitNode;
+class StrLitNode;
+class TrueNode;
+class FalseNode;
+class IdNode;
+class DerefNode;
+class AssignNode;
+class CallExpNode;
+class UnaryExpNode;
+class UnaryMinusNode;
+class NotNode;
+class BinaryExpNode;
+class PlusNode;
+class MinusNode;
+class DivideNode;
+class AndNode;
+class OrNode;
+class EqualsNode;
+class NotEqualsNode;
+class LessNode;
+class GreaterNode;
+class LessEqNode;
+class GreaterEqNode;
+
 
 class ASTNode{
 public:
