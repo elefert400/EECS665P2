@@ -135,7 +135,7 @@ class IfElseStmtNode;
 class WhileStmtNode;
 class CallStmtNode;
 class ReturnStmtNode;
-class ExpNode;
+class ExpNode : ASTnode;
 class IntLitNode;
 class StrLitNode;
 class TrueNode;
@@ -596,7 +596,7 @@ public:
 	TypeNode(size_t line, size_t col) : ASTNode(line, col){
 	}
 	virtual void unparse(std::ostream& out, int indent) = 0;
-	int indirDepth; 
+	int indirDepth;
 };
 
 class IntNode : public TypeNode{
@@ -635,7 +635,7 @@ public:
 class AssignStmtNode : public StmtNode{
 public:
 	AssignStmtNode(AssignNode* assignIn) : StmtNode(assignIn->getLine(), assignIn->getCol()){
-		myAssign = assignIn;	
+		myAssign = assignIn;
 	}
 	void unparse(std::ostream& out, int indent);
 private:
@@ -688,7 +688,7 @@ public:
 		StmtNode(expIn->getLine(), expIn->getCol()){
 			myExp = expIn;
 			myDeclList = declListIn;
-			myStmtList = stmtListIn;	
+			myStmtList = stmtListIn;
 	}
 	void unparse(std::ostream& out, int indent);
 private:
@@ -699,7 +699,7 @@ private:
 
 class IfElseStmtNode : public StmtNode{
 public:
-	IfElseStmtNode(ExpNode* expIn, DeclListNode* declListIn_if, StmtListNode* stmtListIn_if, 
+	IfElseStmtNode(ExpNode* expIn, DeclListNode* declListIn_if, StmtListNode* stmtListIn_if,
 		DeclListNode* declListIn_else, StmtListNode* stmtListIn_else) :
 		StmtNode(expIn->getLine(), expIn->getCol()){
 			myExp = expIn;
@@ -743,7 +743,7 @@ private:
 
 class ReturnStmtNode : public StmtNode{
 public:
-	ReturnStmtNode(Token* returnToken, ExpNode* expIn) : 
+	ReturnStmtNode(Token* returnToken, ExpNode* expIn) :
 		StmtNode(returnToken->_line, returnToken->_column){
 		myExp = expIn;
 	}

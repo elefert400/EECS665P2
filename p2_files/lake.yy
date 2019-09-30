@@ -72,46 +72,46 @@
 
 %define parse.assert
 
-%token               END    0     "end of file"
-%token               NEWLINE "newline"
-%token               BOOL
-%token <tokenValue>  INT
-%token               VOID
-%token               TRUE
-%token               FALSE
-%token               IF
-%token               ELSE
-%token               WHILE
-%token               RETURN
+%token END    0     "end of file"
+%token <tokenValue> NEWLINE "newline"
+%token <tokenValue> BOOL
+%token <tokenValue> INT
+%token <tokenValue> VOID
+%token <tokenValue> TRUE
+%token <tokenValue> FALSE
+%token <tokenValue> IF
+%token <tokenValue> ELSE
+%token <tokenValue> WHILE
+%token <tokenValue> RETURN
 %token <idTokenValue> ID
-%token               INTLITERAL
-%token               STRINGLITERAL
-%token               DEREF
-%token               LCURLY
-%token               RCURLY
-%token               LPAREN
-%token               RPAREN
-%token               SEMICOLON
-%token               COMMA
-%token               DOT
-%token               WRITE
-%token               READ
-%token               CROSSCROSS
-%token               DASHDASH
-%token               CROSS
-%token               DASH
-%token               STAR
-%token               SLASH
-%token               NOT
-%token               AND
-%token               OR
-%token               EQUALS
-%token               NOTEQUALS
-%token               LESS
-%token               GREATER
-%token               LESSEQ
-%token               GREATEREQ
-%token               ASSIGN
+%token <intTokenValue> INTLITERAL
+%token <strTokenValue> STRINGLITERAL
+%token <tokenValue> DEREF
+%token <tokenValue> LCURLY
+%token <tokenValue> RCURLY
+%token <tokenValue> LPAREN
+%token <tokenValue> RPAREN
+%token <tokenValue> SEMICOLON
+%token <tokenValue> COMMA
+%token <tokenValue> DOT
+%token <tokenValue> WRITE
+%token <tokenValue> READ
+%token <tokenValue> CROSSCROSS
+%token <tokenValue> DASHDASH
+%token <tokenValue> CROSS
+%token <tokenValue> DASH
+%token <tokenValue> STAR
+%token <tokenValue> SLASH
+%token <tokenValue> NOT
+%token <tokenValue> AND
+%token <tokenValue> OR
+%token <tokenValue> EQUALS
+%token <tokenValue> NOTEQUALS
+%token <tokenValue> LESS
+%token <tokenValue> GREATER
+%token <tokenValue> LESSEQ
+%token <tokenValue> GREATEREQ
+%token <tokenValue> ASSIGN
 
 /* Nonterminals
 *  NOTE: You will need to add more nonterminals
@@ -125,7 +125,7 @@
 %type <typeNode> type
 %type <idNode> id
 %type <typeNode> primtype
-%type <counterTrans> ptrdepth
+%type <counterTrans> indirect
 %type <fnDecl> fnDecl
 %type <fnBody> fnBody
 %type <stmtList> stmtList
@@ -135,6 +135,7 @@
 %type <stmtNode> stmt
 %type <exp> exp
 %type <exp> loc
+%type <exp> term
 %type <callNode> fncall
 %type <assignNode> assignExp
 %type <expList> actualList
@@ -144,7 +145,7 @@
 */
 %left DOT
 %right ASSIGN
-$left OR
+%left OR
 %left AND
 %nonassoc LESS
 %nonassoc GREATER
@@ -203,7 +204,7 @@ formalsList : formalDecl {
 formalDecl : type id {
   $$ = new FormalDeclNode($1, $2);
 }
-fnBody : LCURLY varDeclList stmtList RCURLY {
+fnBody : LCURLY declList stmtList RCURLY {
   $$ = new FnBodyNode($2, $3);
 }
 stmtList : stmtList stmt {
@@ -216,10 +217,10 @@ stmtList : stmtList stmt {
 stmt : assignExp SEMICOLON{
   $$ = new AssignStmtNode($1);
   }
-  | loc PLUSPLUS SEMICOLON {
+  | loc CROSSCROSS SEMICOLON {
   $$ = new PostIncStmtNode($1);
   }
-  | loc MINUSMINUS SEMICOLON {
+  | loc DASHDASH SEMICOLON {
   $$ = new PostDecStmtNode($1);
   }
   | READ loc SEMICOLON {
@@ -228,13 +229,13 @@ stmt : assignExp SEMICOLON{
   | WRITE exp SEMICOLON {
   $$ = new WriteStmtNode($2);
   }
-  | IF LPAREN exp RPAREN LCURLY varDeclList stmtList RCURLY {
+  | IF LPAREN exp RPAREN LCURLY declList stmtList RCURLY {
   $$ = new IfStmtNode($3, $6, $7);
   }
-  | IF LPAREN exp RPAREN LCURLY varDeclList stmtList RCURLY ELSE LCURLY varDeclList stmtList RCURLY {
+  | IF LPAREN exp RPAREN LCURLY declList stmtList RCURLY ELSE LCURLY declList stmtList RCURLY {
   $$ = new IfElseStmtNode($3, $6, $7, $11, $12);
   }
-  | WHILE LPAREN exp RPAREN LCURLY varDeclList stmtList RCURLY {
+  | WHILE LPAREN exp RPAREN LCURLY declList stmtList RCURLY {
   $$ = new WhileStmtNode($3, $6, $7);
   }
   | RETURN exp SEMICOLON {
@@ -249,16 +250,16 @@ stmt : assignExp SEMICOLON{
 assignExp : loc ASSIGN exp {
   $$ = new AssignNode($1, $3);
   }
-exp :  exp PLUS exp {
+exp :  exp CROSS exp {
   $$ = new PlusNode($1, $3);
   }
-  | exp MINUS exp {
+  | exp DASH exp {
   $$ = new MinusNode($1, $3);
   }
-  | exp TIMES exp {
+  | exp STAR exp {
   $$ = new TimesNode($1, $3);
   }
-  | exp DIVIDE exp {
+  | exp SLASH exp {
   $$ = new DivideNode($1, $3);
   }
   | NOT exp {
@@ -288,7 +289,7 @@ exp :  exp PLUS exp {
   | exp GREATEREQ exp {
   $$ = new GreaterEqNode($1, $3);
   }
-  | MINUS term {
+  | DASH term {
   $$ = new UnaryMinusNode($2);
   }
   | term {
@@ -313,7 +314,7 @@ term : loc {
   $$ = $2;
   }
   | fncall {
-  $$ = $2;
+  $$ = $1;
   }
 fncall : id LPAREN RPAREN {
   //no args fn call
