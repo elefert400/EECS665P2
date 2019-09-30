@@ -108,46 +108,63 @@ void ReturnStmtNode::unparse(std::ostream& out, int indent){
 
 void IntLitNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	cout << value;
+	std::cout << value;
 }
 
 void StrLitNode::unparse(std::ostream& out, int indent){
-doIndent(out, indent);
-cout << value;
+	doIndent(out, indent);
+	std::cout << value;
 }
 
 void TrueNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	cout << "True";
+	std::cout << "True";
 }
 
 void FalseNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
-	cout << "False";
+	std::cout << "False";
 }
 
 void IdNode::unparse(std::ostream& out, int indent){
-
+	doIndent(out, indent);
+	std::cout << strValue;
 }
 
 void DerefNode::unparse(std::ostream& out, int indent){
-
+	doIndent(out, indent);
+	myExp->unparse(out, indent);
+	myId->unparse(out, indent);
 }
 
 void AssignNode::unparse(std::ostream& out, int indent){
-
+	doIndent(out, indent);
+	myLeftExp->unparse(out, indent);
+	myRightExp->unparse(out, indent);
 }
 
 void CallExpNode::unparse(std::ostream& out, int indent){
+	doIndent(out, indent);
+	myId->unparse(out, indent);
+	myExpList->unparse(out, indent);
+}
 
+void UnaryExpNode::unparse(std::ostream& out, int indent){
+	doIndent(out, indent);
+	myExp->unparse(out, indent);
 }
 
 void UnaryMinusNode::unparse(std::ostream& out, int indent){
-
+	doIndent(out, indent);
+	std::cout << "(";
+	myExp->unparse(out, indent);
+	std::cout << ")";
 }
 
 void NotNode::unparse(std::ostream& out, int indent){
-
+	doIndent(out, indent);
+	std::cout << "!";
+	myExp->unparse(out, indent);
 }
 
 void PlusNode::unparse(std::ostream& out, int indent){

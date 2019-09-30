@@ -255,7 +255,7 @@ public:
 		myId = idIn;
 	}
 	void unparse(std::ostream& out, int indent);
-	void incr_Deref_Count();
+	//void incr_Deref_Count();
 
 private:
 	ExpNode* myExp;
@@ -298,14 +298,22 @@ private:
 
 class UnaryMinusNode : public UnaryExpNode{
 public:
-	UnaryMinusNode(ExpNode* expIn) : UnaryExpNode(expIn){}
+	UnaryMinusNode(ExpNode* expIn) : UnaryExpNode(expIn){
+		myExp = expIn;
+	}
 	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myExp;
 };
 
 class NotNode : public UnaryExpNode{
 public:
-	NotNode(ExpNode* expIn) : UnaryExpNode(expIn){}
+	NotNode(ExpNode* expIn) : UnaryExpNode(expIn){
+		myExp = expIn;
+	}
 	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myExp;
 };
 
 class BinaryExpNode : public ExpNode{
@@ -322,74 +330,146 @@ private:
 
 class PlusNode : public BinaryExpNode{
 public:
-	PlusNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	PlusNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
 	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
 };
 
 class MinusNode : public BinaryExpNode{
 public:
-	MinusNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	MinusNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
 	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
 };
 
 class TimesNode : public BinaryExpNode{
 public:
-	TimesNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	TimesNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
 	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
 };
 
 class DivideNode : public BinaryExpNode{
 public:
-	DivideNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	DivideNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
 	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
 };
 
 class AndNode : public BinaryExpNode{
 public:
-	AndNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	AndNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
 	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
 };
 
 class OrNode : public BinaryExpNode{
 public:
-	OrNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	OrNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
 	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
 };
 
 class EqualsNode : public BinaryExpNode{
 public:
-	EqualsNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	EqualsNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
 	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
 };
 
 class NotEqualsNode : public BinaryExpNode{
 public:
-	NotEqualsNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	NotEqualsNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
 	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
 };
 
 class LessNode : public BinaryExpNode{
 public:
-	LessNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	LessNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
 	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
 };
 
 class GreaterNode : public BinaryExpNode{
 public:
-	GreaterNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	GreaterNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
 	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
 };
 
 class LessEqNode : public BinaryExpNode{
 public:
-	LessEqNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	LessEqNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
 	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
 };
 
 class GreaterEqNode : public BinaryExpNode{
 public:
-	GreaterEqNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){}
+	GreaterEqNode(ExpNode* lExp, ExpNode* rExp) : BinaryExpNode(lExp, rExp){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
 	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
 };
 
 
