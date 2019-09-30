@@ -242,8 +242,10 @@ class IdNode : public ExpNode{
 public:
 	IdNode(IDToken * token) : ExpNode(token->_line, token->_column){
 		strValue = token->value();
+		derefDepth = 0;
 	}
 	void unparse(std::ostream& out, int indent);
+	int derefDepth;
 private:
 	std::string strValue;
 };
@@ -594,7 +596,7 @@ public:
 	TypeNode(size_t line, size_t col) : ASTNode(line, col){
 	}
 	virtual void unparse(std::ostream& out, int indent) = 0;
-	int derefDepth; 
+	int indirDepth; 
 };
 
 class IntNode : public TypeNode{

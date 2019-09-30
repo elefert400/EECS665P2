@@ -107,22 +107,42 @@ void ExpListNode::unparse(std::ostream& out, int indent){
 
 void IdNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
+	if(derefDepth > 0){
+		for(int i=0; i < derefDepth;i++){
+			out << "@";
+		}
+	}
 	out << this->strValue;
 }
 
 void IntNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
 	out << "int";
+	if(indirDepth > 0){
+		for(int i=0; i < indirDepth;i++){
+			out << "@";
+		}
+	}
 }
 
 void BoolNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
 	out << "bool";
+	if(indirDepth > 0){
+		for(int i=0; i < indirDepth;i++){
+			out << "@";
+		}
+	}
 }
 
 void VoidNode::unparse(std::ostream& out, int indent){
 	doIndent(out, indent);
 	out << "void";
+	if(indirDepth > 0){
+		for(int i=0; i < indirDepth;i++){
+			out << "@";
+		}
+	}
 }
 
 void StmtNode::unparse(std::ostream& out, int indent){

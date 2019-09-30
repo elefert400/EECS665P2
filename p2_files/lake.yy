@@ -333,7 +333,7 @@ actualList : exp {
   }
 type : primtype indirect {
   $$ = $1;
-  $$->derefDepth = $2;
+  $$->indirDepth = $2;
   }
 primtype : INT {
   $$ = new IntNode($1);
@@ -354,7 +354,7 @@ loc : id {
   $$ = new IdNode($1);
   }
   | DEREF loc {
-  $2->Inc();
+  $2->derefDepth += 1;
   $$ = $2;
   }
 id : ID { $$ = new IdNode($1); }
