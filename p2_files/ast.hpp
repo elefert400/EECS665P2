@@ -479,6 +479,9 @@ private:
 /*LinkedList Nodes--------------------------------------------------------------------------------------------*/
 class DeclListNode : public ASTNode{
 public:
+	DeclListNode() : ASTNode(0, 0){
+		myDecls = nullptr;
+	}
 	DeclListNode(std::list<DeclNode *> * declsIn) : ASTNode(0, 0){
 		myDecls = declsIn;
 	}
@@ -489,6 +492,9 @@ private:
 
 class FormalsListNode : public ASTNode{
 public:
+	FormalsListNode() : ASTNode(0, 0){
+		myFormals = nullptr;
+	}
 	FormalsListNode(std::list<FormalDeclNode *> * formalsIn) : ASTNode(0, 0){
 		myFormals = formalsIn;
 	}
@@ -511,22 +517,22 @@ private:
 
 class StmtListNode : public ASTNode{
 public:
-	StmtListNode(std::list<StmtNode *> * stmtIn) : ASTNode(0, 0){
-		myStmt = stmtIn;
+	StmtListNode(std::list<StmtNode *> * stmtListIn) : ASTNode(0, 0){
+		myStmtList = stmtListIn;
 	}
 	void unparse(std::ostream& out, int indent);
 private:
-	std::list<StmtNode *> * myStmt;
+	std::list<StmtNode *> * myStmtList;
 };
 
 class ExpListNode : public ASTNode{
 public:
-	ExpListNode(std::list<ExpNode *> * expIn) : ASTNode(0, 0){
-		myExp = expIn;
+	ExpListNode(std::list<ExpNode *> * expListIn) : ASTNode(0, 0){
+		myExpList = expListIn;
 	}
 	void unparse(std::ostream& out, int indent);
 private:
-	std::list<ExpNode *> * myExp;
+	std::list<ExpNode *> * myExpList;
 };
 
 
