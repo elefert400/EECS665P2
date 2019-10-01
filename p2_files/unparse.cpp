@@ -23,7 +23,7 @@ void DeclListNode::unparse(std::ostream& out, int indent){
 }
 
 void VarDeclNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	this->myType->unparse(out, indent);
 	out << " ";
 	this->myId->unparse(out, indent);
@@ -31,7 +31,7 @@ void VarDeclNode::unparse(std::ostream& out, int indent){
 }
 
 void FnDeclNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myType->unparse(out, indent);
 	out << " ";
 	myId->unparse(out, indent);
@@ -40,45 +40,56 @@ void FnDeclNode::unparse(std::ostream& out, int indent){
 }
 
 void FormalDeclNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myType->unparse(out, indent);
 	out << " ";
 	myId->unparse(out, indent);
 }
 
 void FormalsListNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	if(myFormals == nullptr){
 		out << "()";
 		//return;
 	}
 	else{
 		out << "(";
+		int listSize = myFormals->size();
 		for (FormalDeclNode * elt : *myFormals){
 			elt->unparse(out, indent);
-			if(elt == myFormals->back){
-				//Don't print comma
-			}
-			else{
+			if(listSize > 1){
 				out << ", ";
-			}			
+			}
+			listSize--;
 		}
 		out << ")";
-	}	
+	}
 }
 
 void FnBodyNode::unparse(std::ostream& out, int indent){
+	//doIndent(out, indent);
+	out << "{\n";
+
+	for (DeclNode * elt : *myDeclList){
+		doIndent(out, indent);
+		elt->unparse(out, indent);
+		//out << ", ";
+	}
+	//myDeclList->unparse(out, indent+4);
+	for (StmtNode * elt : *myStmtList){
+		doIndent(out, indent);
+		elt->unparse(out, indent);
+		//out << ", ";
+	}
+	//myStmtList->unparse(out, indent+4);
 	doIndent(out, indent);
-	out << "{";
-	myDeclList->unparse(out, indent+4);
-	myStmtList->unparse(out, indent+4);
-	out << "\n}\n";
+	out << "\n}";
 }
 
 void StmtListNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	if(myStmtList == nullptr){
-		out << "";		
+		out << "";
 	}
 	else{
 		for (StmtNode * elt : *myStmtList){
@@ -88,25 +99,20 @@ void StmtListNode::unparse(std::ostream& out, int indent){
 }
 
 void ExpListNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	//doIndent(out, indent);
 	if(myExpList == nullptr){
-		out << "";		
+		out << "";
 	}
 	else{
 		for (ExpNode * elt : *myExpList){
 			elt->unparse(out, indent);
-			if(elt == myExpList->back){
-				//Don't print comma
-			}
-			else{
-				out << ", ";
-			}	
+			//out << ", ";
 		}
 	}
 }
 
 void IdNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	//doIndent(out, indent);
 	if(derefDepth > 0){
 		for(int i=0; i < derefDepth;i++){
 			out << "@";
@@ -116,7 +122,7 @@ void IdNode::unparse(std::ostream& out, int indent){
 }
 
 void IntNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	out << "int";
 	if(indirDepth > 0){
 		for(int i=0; i < indirDepth;i++){
@@ -126,7 +132,7 @@ void IntNode::unparse(std::ostream& out, int indent){
 }
 
 void BoolNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	out << "bool";
 	if(indirDepth > 0){
 		for(int i=0; i < indirDepth;i++){
@@ -136,7 +142,7 @@ void BoolNode::unparse(std::ostream& out, int indent){
 }
 
 void VoidNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	out << "void";
 	if(indirDepth > 0){
 		for(int i=0; i < indirDepth;i++){
@@ -150,79 +156,127 @@ void StmtNode::unparse(std::ostream& out, int indent){
 }
 
 void AssignStmtNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myAssign->unparse(out, indent);
 	out << ";\n";
 }
 
 void PostIncStmtNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myId->unparse(out, indent);
 	out << "++;\n";
 }
 
 void PostDecStmtNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myId->unparse(out, indent);
 	out << "--;\n";
 }
 
 void ReadStmtNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	out << "read ";
 	myId->unparse(out, indent);
 	out << ";\n";
 }
 
 void WriteStmtNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	out << "write ";
 	myExp->unparse(out, indent);
 	out << ";\n";
 }
 
 void IfStmtNode::unparse(std::ostream& out, int indent){
- 	doIndent(out, indent);
+ 	//doIndent(out, indent);
 	out << "if(";
 	myExp->unparse(out, indent);
 	out << "){\n";
-	myDeclList->unparse(out, indent+4);
-	myStmtList->unparse(out, indent+4);
-	out << "}\n"; 
+	//doIndent(out, indent+4);
+	for (DeclNode * elt : *myDeclList){
+		doIndent(out, indent+4);
+		elt->unparse(out, indent);
+		//out << ", ";
+	}
+	//myDeclList->unparse(out, indent+4);
+	for (StmtNode * elt : *myStmtList){
+		doIndent(out, indent+4);
+		elt->unparse(out, indent);
+		//out << ", ";
+	}
+	//myDeclList->unparse(out, indent+4);
+	//myStmtList->unparse(out, indent+4);
+	doIndent(out, indent+4);
+	out << "}\n";
 }
 
 void IfElseStmtNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	//doIndent(out, indent);
 	out << "if(";
 	myExp->unparse(out, indent);
 	out << "){\n";
-	myDeclList_if->unparse(out, indent+4);
-	myStmtList_if->unparse(out, indent+4);
-	out << "\n}\n";
+	//doIndent(out, indent+4);
+	for (DeclNode * elt : *myDeclList_if){
+		doIndent(out, indent+4);
+		elt->unparse(out, indent);
+		// out << ", ";
+	}
+	//myDeclList->unparse(out, indent+4);
+	for (StmtNode * elt : *myStmtList_if){
+		doIndent(out, indent+4);
+		elt->unparse(out, indent);
+		// out << ", ";
+	}
+	// myDeclList_if->unparse(out, indent+4);
+	// myStmtList_if->unparse(out, indent+4);
+	doIndent(out, indent+4);
+	out << "\n}";
 	out << "else{\n";
-	myDeclList_else->unparse(out, indent+4);
-	myStmtList_else->unparse(out, indent+4);
+	doIndent(out, indent+4);
+	for (DeclNode * elt : *myDeclList_if){
+		elt->unparse(out, indent);
+		// out << ", ";
+	}
+	//myDeclList->unparse(out, indent+4);
+	for (StmtNode * elt : *myStmtList_if){
+		elt->unparse(out, indent);
+		// out << ", ";
+	}
+	// myDeclList_else->unparse(out, indent+4);
+	// myStmtList_else->unparse(out, indent+4);
+	doIndent(out, indent+4);
 	out << "\n}\n";
 }
 
 void WhileStmtNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	//doIndent(out, indent);
 	out << "while(";
 	myExp->unparse(out, indent);
 	out << "){\n";
-	myDeclList->unparse(out, indent+4);
-	myStmtList->unparse(out, indent+4);
+	doIndent(out, indent+4);
+	for (DeclNode * elt : *myDeclList){
+		elt->unparse(out, indent+4);
+		//out << ", ";
+	}
+	//myDeclList->unparse(out, indent+4);
+	for (StmtNode * elt : *myStmtList){
+		elt->unparse(out, indent+4);
+		//out << ", ";
+	}
+	// myDeclList->unparse(out, indent+4);
+	// myStmtList->unparse(out, indent+4);
+	doIndent(out, indent+4);
 	out << "\n}\n";
 }
 
 void CallStmtNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myCallExp->unparse(out, indent);
 	out << ";\n";
 }
 
 void ReturnStmtNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	out << "return";
 	if(myExp == nullptr){
 		//dont unparse nullptr
@@ -241,45 +295,45 @@ void ExpNode::unparse(std::ostream& out, int indent){
 
 
 void IntLitNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	out << value;
 }
 
 void StrLitNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	out << value;
 }
 
 void TrueNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	out << "True";
 }
 
 void FalseNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	out << "False";
 }
 
-void IdNode::unparse(std::ostream& out, int indent){
-	doIndent(out, 0);
-	out << strValue;
-}
+// void IdNode::unparse(std::ostream& out, int indent){
+// 	doIndent(out, 0);
+// 	out << strValue;
+// }
 
 void DerefNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myExp->unparse(out, indent);
 	myId->unparse(out, indent);
 }
 
 void AssignNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myLeftExp->unparse(out, indent);
 	out << " = ";
 	myRightExp->unparse(out, indent);
 }
 
 void CallExpNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myId->unparse(out, indent);
 	out << "(";
 	myExpList->unparse(out, indent);
@@ -287,104 +341,104 @@ void CallExpNode::unparse(std::ostream& out, int indent){
 }
 
 void UnaryExpNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	out << "(";
 	myExp->unparse(out, indent);
 	out << ")";
 }
 
 void UnaryMinusNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	out << "(";
 	myExp->unparse(out, indent);
 	out << ")";
 }
 
 void NotNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	out << "!";
 	myExp->unparse(out, indent);
 }
 
 void PlusNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myLeftExp->unparse(out, indent);
 	out << " + ";
 	myRightExp->unparse(out, indent);
 }
 
 void MinusNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myLeftExp->unparse(out, indent);
 	out << " - ";
 	myRightExp->unparse(out, indent);
 }
 
 void TimesNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myLeftExp->unparse(out, indent);
 	out << " * ";
 	myRightExp->unparse(out, indent);
 }
 
 void DivideNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myLeftExp->unparse(out, indent);
 	out << " / ";
 	myRightExp->unparse(out, indent);
 }
 
 void AndNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myLeftExp->unparse(out, indent);
 	out << " && ";
 	myRightExp->unparse(out, indent);
 }
 
 void OrNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myLeftExp->unparse(out, indent);
 	out << " || ";
 	myRightExp->unparse(out, indent);
 }
 
 void EqualsNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myLeftExp->unparse(out, indent);
 	out << " == ";
 	myRightExp->unparse(out, indent);
 }
 
 void NotEqualsNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myLeftExp->unparse(out, indent);
 	out << " != ";
 	myRightExp->unparse(out, indent);
 }
 
 void LessNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myLeftExp->unparse(out, indent);
 	out << " < ";
 	myRightExp->unparse(out, indent);
 }
 
 void GreaterNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myLeftExp->unparse(out, indent);
 	out << " > ";
 	myRightExp->unparse(out, indent);
 }
 
 void LessEqNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myLeftExp->unparse(out, indent);
 	out << " <= ";
 	myRightExp->unparse(out, indent);
 }
 
 void GreaterEqNode::unparse(std::ostream& out, int indent){
-	doIndent(out, indent);
+	// doIndent(out, indent);
 	myLeftExp->unparse(out, indent);
 	out << " >= ";
 	myRightExp->unparse(out, indent);

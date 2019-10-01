@@ -318,11 +318,11 @@ term : loc {
   }
 fncall : id LPAREN RPAREN {
   //no args fn call
-  $$ = new CallExpNode($1, new std::list<ExpNode*>());
+  $$ = new CallExpNode($1, new ExpListNode(new std::list<ExpNode*>()));
   }
   | id LPAREN actualList RPAREN {
   //with args fn call
-  $$ = new CallExpNode($1, new std::list<ExpNode*>($3));
+  $$ = new CallExpNode($1, new ExpListNode($3));
   }
 actualList : exp {
   $$ = new std::list<ExpNode*> ();
@@ -352,7 +352,7 @@ indirect : indirect DEREF {
   $$ = 0;
   }
 loc : id {
-  $$ = new IdNode($1);
+  $$ = $1;
   }
   | DEREF loc {
   $2->derefDepth += 1;

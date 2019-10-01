@@ -180,7 +180,7 @@ private:
 
 class ProgramNode : public ASTNode{
 public:
-	ProgramNode(DeclListNode * declsIn) : ASTNode(0, 0){
+	ProgramNode(DeclListNode* declsIn) : ASTNode(0, 0){
 		myDeclList = declsIn;
 	}
 	void unparse(std::ostream& out, int indent);
@@ -191,13 +191,14 @@ private:
 class DeclNode : public ASTNode{
 public:
 	DeclNode(size_t line, size_t col) : ASTNode(line, col){}
-	void unparse(std::ostream& out, int indent);
+	virtual void unparse(std::ostream& out, int indent) = 0;
 };
 
 class ExpNode : public ASTNode{
 public:
 	ExpNode(size_t line, size_t col) : ASTNode(line, col){}
 	void unparse(std::ostream& out, int indent);
+	int derefDepth;
 };
 
 class AssignNode : public ExpNode{
@@ -228,7 +229,7 @@ public:
 		myLeftExp = lExp;
 		myRightExp = rExp;
 	}
-	void unparse(std::ostream& out, int indent);
+	virtual void unparse(std::ostream& out, int indent) = 0;
 private:
 	ExpNode* myLeftExp;
 	ExpNode* myRightExp;
@@ -278,14 +279,18 @@ private:
 
 class FnBodyNode : public ASTNode{
 public:
-	FnBodyNode(DeclListNode* declListIn, StmtListNode* stmtListIn) : ASTNode(0, 0){
+	FnBodyNode(std::list<DeclNode *> * declListIn, std::list<StmtNode *> * stmtListIn) : ASTNode(0, 0){
 		myDeclList = declListIn;
 		myStmtList = stmtListIn;
 	}
+	// FnBodyNode(DeclListNode* declListIn, StmtListNode* stmtListIn) : ASTNode(0, 0){
+	// 	myDeclList = declListIn;
+	// 	myStmtList = stmtListIn;
+	// }
 	void unparse(std::ostream& out, int indent);
 private:
-	DeclListNode* myDeclList;
-	StmtListNode* myStmtList;
+	std::list<DeclNode *> * myDeclList;
+	std::list<StmtNode *> * myStmtList;
 };
 
 class StmtListNode : public ASTNode{
@@ -333,13 +338,13 @@ private:
 
 class TrueNode : public ExpNode{
 public:
-	TrueNode(NoArgToken* token) : ExpNode(token->_line, token->_column){ }
+	TrueNode(Token* token) : ExpNode(token->_line, token->_column){ }
 	void unparse(std::ostream& out, int indent);
 };
 
 class FalseNode : public ExpNode{
 public:
-	FalseNode(NoArgToken* token) : ExpNode(token->_line, token->_column){ }
+	FalseNode(Token* token) : ExpNode(token->_line, token->_column){ }
 	void unparse(std::ostream& out, int indent);
 };
 
@@ -350,7 +355,6 @@ public:
 		derefDepth = 0;
 	}
 	void unparse(std::ostream& out, int indent);
-	int derefDepth;
 private:
 	std::string strValue;
 };
@@ -615,19 +619,19 @@ private:
 
 class IntNode : public TypeNode{
 public:
-	IntNode(NoArgToken* token) : TypeNode(token->_line, token->_column){ }
+	IntNode(Token* token) : TypeNode(token->_line, token->_column){ }
 	void unparse(std::ostream& out, int indent);
 };
 
 class BoolNode : public TypeNode{
 public:
-	BoolNode(NoArgToken* token) : TypeNode(token->_line, token->_column){ }
+	BoolNode(Token* token) : TypeNode(token->_line, token->_column){ }
 	void unparse(std::ostream& out, int indent);
 };
 
 class VoidNode : public TypeNode{
 public:
-	VoidNode(NoArgToken* token) : TypeNode(token->_line, token->_column){ }
+	VoidNode(Token* token) : TypeNode(token->_line, token->_column){ }
 	void unparse(std::ostream& out, int indent);
 };
 
@@ -654,32 +658,32 @@ private:
 
 class PostIncStmtNode : public StmtNode{
 public:
-	PostIncStmtNode(IdNode* idIn) : StmtNode(idIn->getLine(), idIn->getCol()){
+	PostIncStmtNode(ExpNode* idIn) : StmtNode(idIn->getLine(), idIn->getCol()){
 		myId = idIn;
 	}
 	void unparse(std::ostream& out, int indent);
 private:
-	IdNode* myId;
+	ExpNode* myId;
 };
 
 class PostDecStmtNode : public StmtNode{
 public:
-	PostDecStmtNode(IdNode* idIn) : StmtNode(idIn->getLine(), idIn->getCol()){
+	PostDecStmtNode(ExpNode* idIn) : StmtNode(idIn->getLine(), idIn->getCol()){
 		myId = idIn;
 	}
 	void unparse(std::ostream& out, int indent);
 private:
-	IdNode* myId;
+	ExpNode* myId;
 };
 
 class ReadStmtNode : public StmtNode{
 public:
-	ReadStmtNode(IdNode* idIn) : StmtNode(idIn->getLine(), idIn->getCol()){
+	ReadStmtNode(ExpNode* idIn) : StmtNode(idIn->getLine(), idIn->getCol()){
 		myId = idIn;
 	}
 	void unparse(std::ostream& out, int indent);
 private:
-	IdNode* myId;
+	ExpNode* myId;
 };
 
 class WriteStmtNode : public StmtNode{
@@ -694,7 +698,7 @@ private:
 
 class IfStmtNode : public StmtNode{
 public:
-	IfStmtNode(ExpNode* expIn, DeclListNode* declListIn, StmtListNode* stmtListIn) :
+	IfStmtNode(ExpNode* expIn, std::list<DeclNode *> * declListIn, std::list<StmtNode *> * stmtListIn) :
 		StmtNode(expIn->getLine(), expIn->getCol()){
 			myExp = expIn;
 			myDeclList = declListIn;
@@ -703,14 +707,14 @@ public:
 	void unparse(std::ostream& out, int indent);
 private:
 	ExpNode* myExp;
-	DeclListNode* myDeclList;
-	StmtListNode* myStmtList;
+	std::list<DeclNode *> * myDeclList;
+	std::list<StmtNode *> * myStmtList;
 };
 
 class IfElseStmtNode : public StmtNode{
 public:
-	IfElseStmtNode(ExpNode* expIn, DeclListNode* declListIn_if, StmtListNode* stmtListIn_if,
-		DeclListNode* declListIn_else, StmtListNode* stmtListIn_else) :
+	IfElseStmtNode(ExpNode* expIn, std::list<DeclNode *> * declListIn_if, std::list<StmtNode *> * stmtListIn_if,
+		std::list<DeclNode *> * declListIn_else, std::list<StmtNode *> * stmtListIn_else) :
 		StmtNode(expIn->getLine(), expIn->getCol()){
 			myExp = expIn;
 			myDeclList_if = declListIn_if;
@@ -721,15 +725,15 @@ public:
 	void unparse(std::ostream& out, int indent);
 private:
 	ExpNode* myExp;
-	DeclListNode* myDeclList_if;
-	StmtListNode* myStmtList_if;
-	DeclListNode* myDeclList_else;
-	StmtListNode* myStmtList_else;
+	std::list<DeclNode *> * myDeclList_if;
+	std::list<StmtNode *> * myStmtList_if;
+	std::list<DeclNode *> * myDeclList_else;
+	std::list<StmtNode *> * myStmtList_else;
 };
 
 class WhileStmtNode : public StmtNode{
 public:
-	WhileStmtNode(ExpNode* expIn, DeclListNode* declListIn, StmtListNode* stmtListIn) : StmtNode(expIn->getLine(), expIn->getCol()){
+	WhileStmtNode(ExpNode* expIn, std::list<DeclNode *> * declListIn, std::list<StmtNode *> * stmtListIn) : StmtNode(expIn->getLine(), expIn->getCol()){
 			myExp = expIn;
 			myDeclList = declListIn;
 			myStmtList = stmtListIn;
@@ -737,8 +741,8 @@ public:
 	void unparse(std::ostream& out, int indent);
 private:
 	ExpNode* myExp;
-	DeclListNode* myDeclList;
-	StmtListNode* myStmtList;
+	std::list<DeclNode *> * myDeclList;
+	std::list<StmtNode *> * myStmtList;
 };
 
 class CallStmtNode : public StmtNode{
