@@ -82,7 +82,7 @@ void FnBodyNode::unparse(std::ostream& out, int indent){
 		//out << ", ";
 	}
 	//myStmtList->unparse(out, indent+4);
-	out << "\n";
+	//out << "\n";
 	//doIndent(out, indent);
 	out << "}";
 }
@@ -250,7 +250,7 @@ void IfElseStmtNode::unparse(std::ostream& out, int indent){
 	// myStmtList_else->unparse(out, indent+4);
 	//out << "\n";
 	doIndent(out, indent);
-	out << "}";
+	out << "}\n";
 }
 
 void WhileStmtNode::unparse(std::ostream& out, int indent){
@@ -356,15 +356,16 @@ void UnaryExpNode::unparse(std::ostream& out, int indent){
 
 void UnaryMinusNode::unparse(std::ostream& out, int indent){
 	// doIndent(out, indent);
-	out << "(";
+	out << "(-";
 	myExp->unparse(out, indent);
 	out << ")";
 }
 
 void NotNode::unparse(std::ostream& out, int indent){
 	// doIndent(out, indent);
-	out << "!";
+	out << "!(";
 	myExp->unparse(out, indent);
+	out << ")";
 }
 
 void PlusNode::unparse(std::ostream& out, int indent){
@@ -397,16 +398,20 @@ void DivideNode::unparse(std::ostream& out, int indent){
 
 void AndNode::unparse(std::ostream& out, int indent){
 	// doIndent(out, indent);
+	out << "(";
 	myLeftExp->unparse(out, indent);
 	out << " and ";
 	myRightExp->unparse(out, indent);
+	out << ")";
 }
 
 void OrNode::unparse(std::ostream& out, int indent){
 	// doIndent(out, indent);
+	out << "(";
 	myLeftExp->unparse(out, indent);
 	out << " or ";
 	myRightExp->unparse(out, indent);
+	out << ")";
 }
 
 void EqualsNode::unparse(std::ostream& out, int indent){

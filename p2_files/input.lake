@@ -6,10 +6,17 @@ void myFunc(){
   bool a;
   a = false;
   x = 5;
+  x++;
+  x--;
   read @@@x;
+  write y;
+  a = x && y;
+  b = !(!y || !x);
   if (b == -1) { x = 4+3*5-y; while (c) { y = y*2+x; h = 5; } } else { x = 0; }
 }
 
 void poop (){
-if (b == -1) { x = 4+3*5-y; while (c) { y = y*2+x; h = 5; } } else { x = 0; }
+if (b == -1) { x = 4+3*5-y; while (c) { y = y*2+x; h = 5; } } else { x = 0;
+return(5); }
+return;
 }
