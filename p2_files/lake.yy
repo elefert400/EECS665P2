@@ -188,7 +188,7 @@ fnDecl : type id formals fnBody {
   $$ = new FnDeclNode($1, $2, $3, $4);
 }
 formals : LPAREN RPAREN {
-  $$ = new FormalsListNode(new std::list<FormalDeclNode*> ();)
+  $$ = new FormalsListNode(new std::list<FormalDeclNode*> ());
 }
   | LPAREN formalsList RPAREN {
   $$ = new FormalsListNode($2);

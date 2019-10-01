@@ -135,7 +135,7 @@ class IfElseStmtNode;
 class WhileStmtNode;
 class CallStmtNode;
 class ReturnStmtNode;
-class ExpNode : ASTnode;
+class ExpNode;
 class IntLitNode;
 class StrLitNode;
 class TrueNode;
@@ -194,17 +194,122 @@ public:
 	void unparse(std::ostream& out, int indent);
 };
 
-
-
-
-
-
-/*ExpNode Sub-Section---------------------------------------------------------------------------------------*/
 class ExpNode : public ASTNode{
 public:
 	ExpNode(size_t line, size_t col) : ASTNode(line, col){}
 	void unparse(std::ostream& out, int indent);
 };
+
+class AssignNode : public ExpNode{
+public:
+	AssignNode(ExpNode* lExp, ExpNode* rExp) : ExpNode(lExp->getLine(), lExp->getCol()){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
+};
+
+class UnaryExpNode : public ExpNode{
+public:
+	UnaryExpNode(ExpNode* expIn) : ExpNode(expIn->getLine(), expIn->getCol()){
+		myExp = expIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myExp;
+};
+
+class BinaryExpNode : public ExpNode{
+public:
+	BinaryExpNode(ExpNode* lExp , ExpNode* rExp) : ExpNode(lExp->getLine(), lExp->getCol()){
+		myLeftExp = lExp;
+		myRightExp = rExp;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	ExpNode* myLeftExp;
+	ExpNode* myRightExp;
+};
+
+class DeclListNode : public ASTNode{
+public:
+	DeclListNode() : ASTNode(0, 0){
+		myDecls = nullptr;
+	}
+	DeclListNode(std::list<DeclNode *> * declsIn) : ASTNode(0, 0){
+		myDecls = declsIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	std::list<DeclNode *> * myDecls;
+};
+
+class TypeNode : public ASTNode{
+public:
+	TypeNode(size_t line, size_t col) : ASTNode(line, col){
+	}
+	virtual void unparse(std::ostream& out, int indent) = 0;
+	int indirDepth;
+};
+
+class StmtNode : public ASTNode{
+public:
+	StmtNode(size_t line, size_t col) : ASTNode(line, col){ };
+	void unparse(std::ostream& out, int indent);
+};
+
+
+
+class FormalsListNode : public ASTNode{
+public:
+	FormalsListNode() : ASTNode(0, 0){
+		myFormals = nullptr;
+	}
+	FormalsListNode(std::list<FormalDeclNode *> * formalsIn) : ASTNode(0, 0){
+		myFormals = formalsIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	std::list<FormalDeclNode *> * myFormals;
+};
+
+class FnBodyNode : public ASTNode{
+public:
+	FnBodyNode(DeclListNode* declListIn, StmtListNode* stmtListIn) : ASTNode(0, 0){
+		myDeclList = declListIn;
+		myStmtList = stmtListIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	DeclListNode* myDeclList;
+	StmtListNode* myStmtList;
+};
+
+class StmtListNode : public ASTNode{
+public:
+	StmtListNode(std::list<StmtNode *> * stmtListIn) : ASTNode(0, 0){
+		myStmtList = stmtListIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	std::list<StmtNode *> * myStmtList;
+};
+
+class ExpListNode : public ASTNode{
+public:
+	ExpListNode(std::list<ExpNode *> * expListIn) : ASTNode(0, 0){
+		myExpList = expListIn;
+	}
+	void unparse(std::ostream& out, int indent);
+private:
+	std::list<ExpNode *> * myExpList;
+};
+
+/*ExpNode Sub-Section---------------------------------------------------------------------------------------*/
+
 
 class IntLitNode: public ExpNode{
 public:
@@ -264,17 +369,7 @@ private:
 	IdNode* myId;
 };
 
-class AssignNode : public ExpNode{
-public:
-	AssignNode(ExpNode* lExp, ExpNode* rExp) : ExpNode(lExp->getLine(), lExp->getCol()){
-		myLeftExp = lExp;
-		myRightExp = rExp;
-	}
-	void unparse(std::ostream& out, int indent);
-private:
-	ExpNode* myLeftExp;
-	ExpNode* myRightExp;
-};
+
 
 class CallExpNode : public ExpNode{
 public:
@@ -288,15 +383,7 @@ private:
 	ExpListNode* myExpList;
 };
 
-class UnaryExpNode : public ExpNode{
-public:
-	UnaryExpNode(ExpNode* expIn) : ExpNode(expIn->getLine(), expIn->getCol()){
-		myExp = expIn;
-	}
-	void unparse(std::ostream& out, int indent);
-private:
-	ExpNode* myExp;
-};
+
 
 class UnaryMinusNode : public UnaryExpNode{
 public:
@@ -318,17 +405,7 @@ private:
 	ExpNode* myExp;
 };
 
-class BinaryExpNode : public ExpNode{
-public:
-	BinaryExpNode(ExpNode* lExp , ExpNode* rExp) : ExpNode(lExp->getLine(), lExp->getCol()){
-		myLeftExp = lExp;
-		myRightExp = rExp;
-	}
-	void unparse(std::ostream& out, int indent);
-private:
-	ExpNode* myLeftExp;
-	ExpNode* myRightExp;
-};
+
 
 class PlusNode : public BinaryExpNode{
 public:
@@ -479,63 +556,7 @@ private:
 
 
 /*LinkedList Nodes--------------------------------------------------------------------------------------------*/
-class DeclListNode : public ASTNode{
-public:
-	DeclListNode() : ASTNode(0, 0){
-		myDecls = nullptr;
-	}
-	DeclListNode(std::list<DeclNode *> * declsIn) : ASTNode(0, 0){
-		myDecls = declsIn;
-	}
-	void unparse(std::ostream& out, int indent);
-private:
-	std::list<DeclNode *> * myDecls;
-};
 
-class FormalsListNode : public ASTNode{
-public:
-	FormalsListNode() : ASTNode(0, 0){
-		myFormals = nullptr;
-	}
-	FormalsListNode(std::list<FormalDeclNode *> * formalsIn) : ASTNode(0, 0){
-		myFormals = formalsIn;
-	}
-	void unparse(std::ostream& out, int indent);
-private:
-	std::list<FormalDeclNode *> * myFormals;
-};
-
-class FnBodyNode : public ASTNode{
-public:
-	FnBodyNode(DeclListNode* declListIn, StmtListNode* stmtListIn) : ASTNode(0, 0){
-		myDeclList = declListIn;
-		myStmtList = stmtListIn;
-	}
-	void unparse(std::ostream& out, int indent);
-private:
-	DeclListNode* myDeclList;
-	StmtListNode* myStmtList;
-};
-
-class StmtListNode : public ASTNode{
-public:
-	StmtListNode(std::list<StmtNode *> * stmtListIn) : ASTNode(0, 0){
-		myStmtList = stmtListIn;
-	}
-	void unparse(std::ostream& out, int indent);
-private:
-	std::list<StmtNode *> * myStmtList;
-};
-
-class ExpListNode : public ASTNode{
-public:
-	ExpListNode(std::list<ExpNode *> * expListIn) : ASTNode(0, 0){
-		myExpList = expListIn;
-	}
-	void unparse(std::ostream& out, int indent);
-private:
-	std::list<ExpNode *> * myExpList;
-};
 
 
 
@@ -591,13 +612,6 @@ private:
 
 
 /*TypeNode Subclasses---------------------------------------------------------------------------------------------*/
-class TypeNode : public ASTNode{
-public:
-	TypeNode(size_t line, size_t col) : ASTNode(line, col){
-	}
-	virtual void unparse(std::ostream& out, int indent) = 0;
-	int indirDepth;
-};
 
 class IntNode : public TypeNode{
 public:
@@ -626,11 +640,7 @@ public:
 
 
 /*StmtNode Subclasses-----------------------------------------------------------------------------------------------*/
-class StmtNode : public ASTNode{
-public:
-	StmtNode(size_t line, size_t col) : ASTNode(line, col){ };
-	void unparse(std::ostream& out, int indent);
-};
+
 
 class AssignStmtNode : public StmtNode{
 public:
